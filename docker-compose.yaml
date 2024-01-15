@@ -1,0 +1,15 @@
+version: "3.11"
+
+services:
+  fastapi:
+    container_name: fastapi_learn
+    build: ./app
+    restart: always
+    command: uvicorn run:app --reload --host 0.0.0.0 --port 8008
+    ports:
+      - "8000:8008"
+    volumes:
+      - type: bind
+        source: ./app
+        target: /app
+      
