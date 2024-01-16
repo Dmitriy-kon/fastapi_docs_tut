@@ -15,11 +15,23 @@ app = FastAPI(description="Some new message")
 
 
 @app.get("/items/")
-async def read_items(q: Annotated[str | None, Query(max_length=10, pattern=r"^\D*sam\w*$")] = None):
+async def read_items(
+    q: Annotated[str | None, Query(alias="item-query", deprecated=True)] = None,
+):
     results = {"items": [{"item_id": "Foo"}, {"item_id": "Bar"}]}
     if q:
         results |= {"q": q}
     return results
+
+
+@app.get("/items2/")
+async def read_itemss(
+    q: Annotated[
+        list[str], Query(title="Query list", description="add some query", min_length=3)
+    ] = None,
+):
+    query_items = {"q": q}
+    return query_items
 
 
 @app.post("/items/")
