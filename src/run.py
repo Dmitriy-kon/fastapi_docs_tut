@@ -4,7 +4,7 @@ from app.models.enum_models import ModelName, Models
 
 from app.models import Item
 
-from fastapi import Depends, FastAPI
+from fastapi import Depends, FastAPI, Query
 
 app = FastAPI(description="Some new message")
 
@@ -14,14 +14,12 @@ app = FastAPI(description="Some new message")
 #     return fake_items_db[skip: skip + limit]
 
 
-@app.get("/items/{item_id}")
-async def read_item(item_id: str, q: str | None = None, short: bool = False):
-    item = {"item_id": item_id}
+@app.get("/items/")
+async def read_items(q: Annotated[str | None, Query(max_length=10, pattern=r"^\D*sam\w*$")] = None):
+    results = {"items": [{"item_id": "Foo"}, {"item_id": "Bar"}]}
     if q:
-        item |= {"q": q}
-    if not short:
-        item |= {"description": "This is an amazing item that has a long description"}
-    return item
+        results |= {"q": q}
+    return results
 
 
 @app.post("/items/")
@@ -56,7 +54,7 @@ async def read_user_item(
 
 @app.get("/models/{model_name}")
 async def get_model(model_name: ModelName, model: Annotated[Models, Depends()]):
-    return {"model_name": model_name, "message": "Hello"}
+    return {"model_name": model_name, "message": "Hello", "model": model}
 
 
 @app.get("/files/{file_path:path}")

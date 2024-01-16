@@ -9,7 +9,7 @@ class ModelName(str, Enum):
 
 
 class Models:
-    def __init__(self, power: str, electricity: str, price: int):
-        self.power: str | None = power
-        self.electricity: str = electricity
-        self.price: int | None = price
+    def __init__(self, power: str, electricity: str, price: int = None):
+        self.power = power
+        self.electricity = electricity
+        self.price = price
