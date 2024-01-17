@@ -2,9 +2,9 @@ from typing import Annotated
 from app.db import fake_items_db
 from app.models.enum_models import ModelName, Models
 
-from app.models import Item
+from app.models import Item, User
 
-from fastapi import Depends, FastAPI, Path, Query
+from fastapi import Body, Depends, FastAPI, Path, Query
 
 app = FastAPI(description="Some new message")
 
@@ -46,8 +46,16 @@ async def create_item(item: Item):
 
 
 @app.put("/items/{item_id}")
-async def update_item(item_id: int, item: Item, q: str | None = None):
-    res = {"item_id": item_id} | item.model_dump()
+async def update_item(
+    item_id: Annotated[int, Path(title="some item-id", ge=0, le=1000)],
+    q: str | None = None,
+    item: Annotated[Item | None, Body(embed=True)] = None,
+    # user: User | None = None,
+    # imrortance: Annotated[int, Body()] = None,
+):
+    res = {"item_id": item_id, "item": item}
+    # res = res | {"user": user}
+    # res = res | {"importance": imrortance}
     if q:
         return res | {"q": q}
     return res
