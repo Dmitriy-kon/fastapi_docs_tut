@@ -1,5 +1,13 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, HttpUrl
 
+
+class Tag(BaseModel):
+    name: str
+    version: str
+
+class Image(BaseModel):
+    url: HttpUrl | None = None
+    name: str
 
 class Item(BaseModel):
     name: str
@@ -11,3 +19,5 @@ class Item(BaseModel):
         description="цена должна быть больше нуля",
     )
     tax: float | None = None
+    tags: list[Tag] = Field(default_factory=list)
+    image: Image | None = None
