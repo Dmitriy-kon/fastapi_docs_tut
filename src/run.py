@@ -4,7 +4,7 @@ from app.models.enum_models import ModelName, Models
 
 from app.models import Item, User
 
-from fastapi import Body, Depends, FastAPI, Path, Query
+from fastapi import Body, Cookie, Depends, FastAPI, Path, Query
 
 app = FastAPI(description="Some new message")
 
@@ -14,15 +14,19 @@ app = FastAPI(description="Some new message")
 #     return fake_items_db[skip: skip + limit]
 
 
-@app.get("/items/{item_id}")
-async def read_items(
-    item_id: Annotated[int, Path(title="Id of the item to ger")],
-    q: Annotated[str | None, Query(alias="item-query", deprecated=True)] = None,
-):
-    results = {"item_id": item_id}
-    if q:
-        results |= {"q": q}
-    return results
+@app.get("/items/")
+async def read_items(ads_id: Annotated[str | None, Cookie()] = None):
+    return {"ads_id": ads_id}
+
+# @app.get("/items/{item_id}")
+# async def read_items(
+#     item_id: Annotated[int, Path(title="Id of the item to ger")],
+#     q: Annotated[str | None, Query(alias="item-query", deprecated=True)] = None,
+# ):
+#     results = {"item_id": item_id}
+#     if q:
+#         results |= {"q": q}
+#     return results
 
 
 @app.get("/items2/")
