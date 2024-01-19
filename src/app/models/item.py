@@ -5,9 +5,20 @@ class Tag(BaseModel):
     name: str
     version: str
 
+
 class Image(BaseModel):
     url: HttpUrl | None = None
     name: str
+
+    model_config = {
+        "json_schema_extra": {
+            "examples": [
+                {"url": "/example.com/image.png", "name": "great picture"},
+                {"name": "no image"},
+            ]
+        }
+    }
+
 
 class Item(BaseModel):
     name: str
