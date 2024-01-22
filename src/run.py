@@ -4,7 +4,7 @@ from app.models.enum_models import ModelName, Models
 
 from app.models import Item, User
 
-from fastapi import Body, Cookie, Depends, FastAPI, Path, Query
+from fastapi import Body, Cookie, Depends, FastAPI, Header, Path, Query
 
 app = FastAPI(description="Some new message")
 
@@ -15,8 +15,8 @@ app = FastAPI(description="Some new message")
 
 
 @app.get("/items/")
-async def read_items(ads_id: Annotated[str | None, Cookie()] = None):
-    return {"ads_id": ads_id}
+async def read_items(x_token: Annotated[list[str], Header()] = None):
+    return {"X-Token values": x_token}
 
 # @app.get("/items/{item_id}")
 # async def read_items(
