@@ -7,8 +7,8 @@ class Tag(BaseModel):
 
 
 class Image(BaseModel):
-    url: HttpUrl | None = None
-    name: str
+    url: str | None = None
+    name: str = None
 
     model_config = {
         "json_schema_extra": {
