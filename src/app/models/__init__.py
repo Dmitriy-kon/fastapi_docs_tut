@@ -1,4 +1,4 @@
 from .item import Item
-from .user import User, UserIn
+from .user import UserBase, UserIn
 
-__all__ = ["Item", "User", "UserIn"]
+__all__ = ["Item", "UserBase", "UserIn"]

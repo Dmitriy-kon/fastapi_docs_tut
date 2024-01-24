@@ -5,9 +5,9 @@ from pydantic import BaseModel
 from app.db import fake_items_db
 from app.models.enum_models import ModelName, Models
 
-from app.models import Item, User, UserIn
+from app.models import Item, UserBase, UserIn
 
-from fastapi import Body, Cookie, Depends, FastAPI, Header, Path, Query, Response
+from fastapi import Body, Cookie, Depends, FastAPI, Header, Path, Query, Response, status
 
 app = FastAPI(description="Some new message")
 
@@ -17,7 +17,7 @@ app = FastAPI(description="Some new message")
 #     return fake_items_db[skip: skip + limit]
 
 
-@app.get("/items/")
+@app.get("/items/", status_code=status.HTTP_200_OK)
 async def read_items(x_token: Annotated[list[str], Header()] = None):
     return {"X-Token values": x_token}
 
@@ -66,7 +66,7 @@ async def read_user_item(
 
 
 @app.post("/users/")
-async def create_user(user: UserIn) -> User:
+async def create_user(user: UserIn) -> UserBase:
     return user
 
 
