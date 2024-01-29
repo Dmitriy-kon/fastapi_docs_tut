@@ -1,7 +1,7 @@
 from typing import Annotated
 from fastapi.params import Form
 
-from fastapi.responses import RedirectResponse
+from fastapi.responses import HTMLResponse, RedirectResponse
 from pydantic import BaseModel
 from app.db import fake_items_db
 from app.models.enum_models import ModelName, Models
@@ -19,12 +19,20 @@ app = FastAPI(description="Some new message")
 
 
 @app.post("/files/")
-async def create_file(file: Annotated[bytes, File()]):
-    return {"file_size": len(file)}
+async def create_file(
+    file: Annotated[bytes, File()],
+    fileb: Annotated[UploadFile, File()],
+    token: Annotated[str, Form()],
+):
+    return {
+        "file_size": len(file),
+        "token": token,
+        "fileb_content_type": fileb.content_type,
+    }
 
 
 @app.post("/uploadfile/")
-async def create_upload_file(file: UploadFile):
+async def create_upload_file(file: Annotated[UploadFile, File(description="A file read as UploadFile")]):
     return {"filename": file.filename, "file.content_type": file.content_type}
 
 @app.get("/items/", status_code=status.HTTP_200_OK)
@@ -36,6 +44,21 @@ async def login(username: Annotated[str, Form()], password: Annotated[str, Form(
     return {"username": username, "password": password}
 
 
+@app.get("/")
+async def main():
+    content = """
+<body>
+<form action="/files/" enctype="multipart/form-data" method="post">
+<input name="files" type="file" multiple>
+<input type="submit">
+</form>
+<form action="/uploadfile/" enctype="multipart/form-data" method="post">
+<input name="file" type="file" multiple>
+<input type="submit">
+</form>
+</body>
+    """
+    return HTMLResponse(content=content)
 # @app.get("/items/{item_id}")
 # async def read_items(
 #     item_id: Annotated[int, Path(title="Id of the item to ger")],
