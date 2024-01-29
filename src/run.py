@@ -13,9 +13,11 @@ from app.models.enum_models import ModelName, Models
 
 from app.models import Item, UserBase, UserIn
 from app.exceptions import UnicornException
+from app.body_update import router as body_router
 
 
 app = FastAPI(description="Some new message")
+app.include_router(body_router)
 
 
 # @app.get("/items/")
@@ -52,7 +54,7 @@ async def create_file(
 async def create_upload_file(file: Annotated[UploadFile, File(description="A file read as UploadFile")]):
     return {"filename": file.filename, "file.content_type": file.content_type}
 
-@app.get("/items/", status_code=status.HTTP_200_OK)
+@app.get("/items/", status_code=status.HTTP_200_OK, tags=["items"])
 async def read_items(x_token: Annotated[list[str], Header()] = None):
     return {"X-Token values": x_token}
 
@@ -66,11 +68,11 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
     return PlainTextResponse(str(exc), status_code=400)
 
 
-@app.get("/items/{item_id}")
-async def read_item(item_id: int):
-    if item_id == 3:
-        raise HTTPException(status_code=418, detail="Item not found")
-    return {"item": item_id}
+# @app.get("/items/{item_id}", tags=["items"])
+# async def read_item(item_id: int):
+#     if item_id == 3:
+#         raise HTTPException(status_code=418, detail="Item not found")
+#     return {"item": item_id}
 
 @app.post("/login/")
 async def login(username: Annotated[str, Form()], password: Annotated[str, Form()]):  # noqa: F821
@@ -103,18 +105,19 @@ async def main():
 #     return results
 
 
-@app.get("/items2/")
-async def read_itemss(
-    q: Annotated[
-        list[str], Query(title="Query list", description="add some query", min_length=3)
-    ] = None,
-):
-    query_items = {"q": q}
-    return query_items
 
 
-@app.post("/items/", response_model=Item, response_model_exclude_unset=True)
+@app.post("/items/", response_model=Item, response_model_exclude_unset=True, tags=["items"], summary="Create an item", response_description="Create an item with all the information")
 async def create_item(item: Item):
+    """
+    Create an item with all the information:
+
+    - **name**: each item must have a name
+    - **description**: a long description
+    - **price**: required
+    - **tax**: if the item doesn't have tax, you can omit this
+    - **tags**: a set of unique tag strings for this item
+    """
     item_dict = item.model_dump()
     if item.tax:
         price_with_tax = item.price + item.tax
