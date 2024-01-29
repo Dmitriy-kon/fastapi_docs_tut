@@ -1,4 +1,5 @@
 from typing import Annotated
+from fastapi.params import Form
 
 from fastapi.responses import RedirectResponse
 from pydantic import BaseModel
@@ -7,7 +8,7 @@ from app.models.enum_models import ModelName, Models
 
 from app.models import Item, UserBase, UserIn
 
-from fastapi import Body, Cookie, Depends, FastAPI, Header, Path, Query, Response, status
+from fastapi import Body, Cookie, Depends, FastAPI, File, Header, Path, Query, Response, UploadFile, status
 
 app = FastAPI(description="Some new message")
 
@@ -17,9 +18,22 @@ app = FastAPI(description="Some new message")
 #     return fake_items_db[skip: skip + limit]
 
 
+@app.post("/files/")
+async def create_file(file: Annotated[bytes, File()]):
+    return {"file_size": len(file)}
+
+
+@app.post("/uploadfile/")
+async def create_upload_file(file: UploadFile):
+    return {"filename": file.filename, "file.content_type": file.content_type}
+
 @app.get("/items/", status_code=status.HTTP_200_OK)
 async def read_items(x_token: Annotated[list[str], Header()] = None):
     return {"X-Token values": x_token}
+
+@app.post("/login/")
+async def login(username: Annotated[str, Form()], password: Annotated[str, Form()]):  # noqa: F821
+    return {"username": username, "password": password}
 
 
 # @app.get("/items/{item_id}")
