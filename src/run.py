@@ -1,14 +1,19 @@
 from typing import Annotated
-from fastapi.params import Form
 
-from fastapi.responses import HTMLResponse, RedirectResponse
 from pydantic import BaseModel
+
+from fastapi.responses import HTMLResponse, JSONResponse, PlainTextResponse, RedirectResponse
+from fastapi.exceptions import RequestValidationError
+from fastapi import Body, Cookie, Depends, FastAPI, File, HTTPException, Header, Path, Query, Response, UploadFile, status, Form, Request
+
+from starlette.exceptions import HTTPException as StarletteHTTPException
+
 from app.db import fake_items_db
 from app.models.enum_models import ModelName, Models
 
 from app.models import Item, UserBase, UserIn
+from app.exceptions import UnicornException
 
-from fastapi import Body, Cookie, Depends, FastAPI, File, Header, Path, Query, Response, UploadFile, status
 
 app = FastAPI(description="Some new message")
 
@@ -17,6 +22,18 @@ app = FastAPI(description="Some new message")
 # async def read_item(skip: int = 0, limit: int = 10):
 #     return fake_items_db[skip: skip + limit]
 
+@app.exception_handler(UnicornException)
+async def unicorn_exception_handler(request: Request, exc: UnicornException):
+    return JSONResponse(
+        status_code=418,
+        content={"message": f"Oops! {exc.name} did something. There goes a rainbow..."}
+    )
+
+@app.get("/unicorn/{name}")
+async def read_unicorn(name: str):
+    if name == "yolo":
+        raise UnicornException(name=name)
+    return {"unicorn_name": name}
 
 @app.post("/files/")
 async def create_file(
@@ -38,6 +55,22 @@ async def create_upload_file(file: Annotated[UploadFile, File(description="A fil
 @app.get("/items/", status_code=status.HTTP_200_OK)
 async def read_items(x_token: Annotated[list[str], Header()] = None):
     return {"X-Token values": x_token}
+
+
+@app.exception_handler(StarletteHTTPException)
+async def http_exception_handler(request, exc):
+    return PlainTextResponse(str(exc.detail), status_code=exc.status_code)
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    return PlainTextResponse(str(exc), status_code=400)
+
+
+@app.get("/items/{item_id}")
+async def read_item(item_id: int):
+    if item_id == 3:
+        raise HTTPException(status_code=418, detail="Item not found")
+    return {"item": item_id}
 
 @app.post("/login/")
 async def login(username: Annotated[str, Form()], password: Annotated[str, Form()]):  # noqa: F821
