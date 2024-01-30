@@ -14,10 +14,12 @@ from app.models.enum_models import ModelName, Models
 from app.models import Item, UserBase, UserIn
 from app.exceptions import UnicornException
 from app.body_update import router as body_router
+from app.depends import router as common_router
 
 
 app = FastAPI(description="Some new message")
 app.include_router(body_router)
+app.include_router(common_router)
 
 
 # @app.get("/items/")
