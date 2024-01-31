@@ -1,5 +1,5 @@
 from typing import Annotated
-from fastapi import APIRouter, Depends, Cookie
+from fastapi import APIRouter, Depends, Cookie, HTTPException, Header
 
 
 router = APIRouter(tags=["depends"])
@@ -31,6 +31,19 @@ def query_or_cookie_extractor(
 
 CommonDep = Annotated[dict, Depends(common_parameters)]
 
+async def verify_token(x_token: Annotated[str, Header()]):
+    if x_token != "fake-super-secret-token":
+        raise HTTPException(status_code=400, detail="X-Token header invalid")
+
+async def verify_key(x_key: Annotated[str, Header()]):
+    if x_key != "fake-super-secret-key":
+        raise HTTPException(status_code=400, detail="X-Key header invalid")
+    return x_key
+
+
+@router.get("/items-token/", dependencies=[Depends(verify_token), Depends(verify_key)])
+async def read_items_token():
+    return [{"item": "Foo"}, {"item": "Bar"}, {"item": "Baz"}]
 
 @router.get("/items-query")
 async def read_query(
