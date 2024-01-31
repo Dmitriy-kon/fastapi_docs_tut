@@ -15,11 +15,13 @@ from app.models import Item, UserBase, UserIn
 from app.exceptions import UnicornException
 from app.body_update import router as body_router
 from app.depends import router as common_router
+from app.auth_oauth2 import router as auth_router
 
 
 app = FastAPI(description="Some new message")
 app.include_router(body_router)
 app.include_router(common_router)
+app.include_router(auth_router)
 
 
 # @app.get("/items/")
