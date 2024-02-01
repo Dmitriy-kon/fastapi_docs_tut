@@ -1,3 +1,4 @@
+import time
 from typing import Annotated
 
 from pydantic import BaseModel
@@ -27,6 +28,14 @@ app.include_router(common_router)
 app.include_router(auth_jwt_router)
 
 
+@app.middleware("http")
+async def add_process_time_hadler(request: Request, call_next):
+    start_time = time.time()
+    response = await call_next(request)
+    process_time = time.time() - start_time
+    response.headers["X-Process-Time"] = str(process_time)
+    return response
+    
 # @app.get("/items/")
 # async def read_item(skip: int = 0, limit: int = 10):
 #     return fake_items_db[skip: skip + limit]
