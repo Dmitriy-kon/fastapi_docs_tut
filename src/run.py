@@ -3,6 +3,7 @@ from typing import Annotated
 
 from pydantic import BaseModel
 
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse, JSONResponse, PlainTextResponse, RedirectResponse
 from fastapi.exceptions import RequestValidationError
 from fastapi import Body, Cookie, Depends, FastAPI, File, HTTPException, Header, Path, Query, Response, UploadFile, status, Form, Request
@@ -27,7 +28,20 @@ app.include_router(common_router)
 # app.include_router(auth_router)
 app.include_router(auth_jwt_router)
 
+origins = [
+    "http://localhost.tiangolo.com",
+    "https://localhost.tiangolo.com",
+    "http://localhost",
+    "http://localhost:8080",
+]
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 @app.middleware("http")
 async def add_process_time_hadler(request: Request, call_next):
     start_time = time.time()
