@@ -20,6 +20,8 @@ from app.body_update import router as body_router
 from app.depends import router as common_router
 from app.auth_oauth2 import router as auth_router
 from app.auth_jwt import router as auth_jwt_router
+from app.async_httpx import router as async_httpx_router
+# from app.async_httpx.router import router as async_httpx_router
 
 
 app = FastAPI(description="Some new message")
@@ -27,6 +29,7 @@ app.include_router(body_router)
 app.include_router(common_router)
 # app.include_router(auth_router)
 app.include_router(auth_jwt_router)
+app.include_router(async_httpx_router)
 
 origins = [
     "http://localhost.tiangolo.com",
